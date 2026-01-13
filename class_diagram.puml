@@ -1,0 +1,59 @@
+@startuml Musical Instrument Rental API - MVP Class Diagram
+
+class User {
+  + id: Integer (PK)
+  + email: String (unique)
+  + password_hash: String
+  + name: String
+  + location_lat: Float
+  + location_lng: Float
+  + created_at: DateTime
+  --
+  + register()
+  + login()
+  + update_profile()
+}
+
+class Instrument {
+  + id: Integer (PK)
+  + owner_id: Integer (FK to User.id)
+  + name: String
+  + type: String (e.g., guitar, piano)
+  + description: String
+  + status: Enum (available, rented, unavailable)
+  + price_per_day: Float
+  + photo_url: String
+  + location_lat: Float
+  + location_lng: Float
+  + tags: List<String>
+  + created_at: DateTime
+  --
+  + create_listing()
+  + update_status()
+  + get_details()
+}
+
+class Rental {
+  + id: Integer (PK)
+  + instrument_id: Integer (FK to Instrument.id)
+  + renter_id: Integer (FK to User.id)
+  + start_date: Date
+  + end_date: Date
+  + total_price: Float
+  + status: Enum (pending, confirmed, completed, cancelled)
+  + created_at: DateTime
+  --
+  + create_rental()
+  + confirm_rental()
+  + cancel_rental()
+}
+
+User ||--o{ Instrument : owns
+User ||--o{ Rental : rents
+Instrument ||--o{ Rental : rented in
+
+note right of User : Stores user credentials and location for auth and proximity searches
+note right of Instrument : Core entity for listings; includes photo and pricing
+note right of Rental : For MVP, basic rental transactions (expand later for payments)
+
+@enduml

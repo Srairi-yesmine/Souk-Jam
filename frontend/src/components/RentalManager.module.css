@@ -1,0 +1,327 @@
+.manager {
+  padding: 40px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.header h2 {
+  font-size: 32px;
+  background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.header p {
+  color: #888;
+  font-size: 16px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid rgba(var(--brand-green-rgb), 0.2);
+}
+
+.tab {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  color: #888;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab.active {
+  color: var(--brand-green);
+  border-bottom-color: var(--brand-green);
+}
+
+.tab:hover {
+  color: var(--brand-green);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rentalCard {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 4px solid var(--brand-green);
+  position: relative;
+  overflow: hidden;
+}
+
+.rentalCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand-green) 0%, var(--brand-green) 100%);
+  z-index: 1;
+}
+
+.rentalCard:hover {
+  box-shadow: 0 15px 40px rgba(var(--brand-green-rgb), 0.25);
+  transform: translateY(-2px);
+  border-left-color: var(--brand-green);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.cardHeader h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.dates {
+  color: #888;
+  font-size: 13px;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(var(--brand-green-rgb), 0.2);
+  color: var(--brand-green);
+}
+
+.status.pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.status.confirmed {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.status.cancelled {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.comment {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 3px solid var(--brand-green);
+}
+
+.comment p {
+  font-size: 13px;
+  color: #888;
+}
+
+.priceInfo {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.priceRow:last-child {
+  margin-bottom: 0;
+}
+
+.negotiated {
+  color: var(--brand-green);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.acceptBtn,
+.counterBtn,
+.rejectBtn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.acceptBtn {
+  background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green) 100%);
+  color: white;
+}
+
+.acceptBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(var(--brand-green-rgb), 0.4);
+}
+
+.counterBtn {
+  background: rgba(var(--brand-green-rgb), 0.2);
+  color: var(--brand-green);
+  border: 2px solid rgba(var(--brand-green-rgb), 0.4);
+}
+
+.counterBtn:hover {
+  background: rgba(var(--brand-green-rgb), 0.3);
+  border-color: var(--brand-green);
+}
+
+.rejectBtn {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 2px solid rgba(244, 67, 54, 0.3);
+}
+
+.rejectBtn:hover {
+  background: rgba(244, 67, 54, 0.3);
+}
+
+.counterOfferForm {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.counterOfferForm input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  color: #333;
+}
+
+.counterOfferForm input:focus {
+  outline: none;
+  border-color: var(--brand-green);
+  background: #f5f5f5;
+}
+
+.sendBtn {
+  padding: 10px 20px;
+  background: var(--brand-purple);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sendBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(var(--brand-purple-rgb), 0.25);
+}
+
+.cancelBtn {
+  padding: 10px 20px;
+  background: rgba(100, 100, 100, 0.2);
+  color: #888;
+  border: 2px solid rgba(100, 100, 100, 0.3);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancelBtn:hover {
+  background: rgba(100, 100, 100, 0.3);
+  color: #555;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  font-size: 16px;
+}
+
+.renterStatus {
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.renterStatus p {
+  font-size: 14px;
+  color: #555;
+  margin: 0;
+}
+
+.statusBadge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.statusBadge.pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.statusBadge.accepted {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.statusBadge.rejected {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}

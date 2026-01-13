@@ -1,0 +1,202 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* When scrolled past hero, make nav opaque and adjust child colors */
+.scrolledNav {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.scrolledNav .navItem {
+  color: #333;
+  text-shadow: none;
+}
+
+.scrolledNav .navItem::after {
+  background: var(--brand-green);
+}
+
+.scrolledNav .logo {
+  color: var(--brand-green);
+  text-shadow: none;
+}
+
+.scrolledNav .userName,
+.scrolledNav .avatarPlaceholder {
+  color: #333;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.logo:hover {
+  transform: translateY(-2px);
+  color: var(--brand-green);
+}
+
+.logoImg {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.menu {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  margin-left: 40px;
+}
+
+.navItem {
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  position: relative;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.navItem::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: white;
+  transition: width 0.3s ease;
+}
+
+.navItem:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navItem:hover::after {
+  width: 100%;
+}
+
+.navItem.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.navItem.active::after {
+  width: 100%;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(var(--brand-green-rgb), 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(var(--brand-green-rgb), 0.4);
+  transition: all 0.3s ease;
+}
+
+.userAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  display: none;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .userName {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 12px 15px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .logo img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .menu {
+    margin-left: 20px;
+    gap: 5px;
+  }
+
+  .navItem {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .userName {
+    display: none;
+  }
+}
