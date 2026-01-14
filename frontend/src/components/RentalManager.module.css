@@ -1,11 +1,21 @@
 .manager {
-  padding: 40px 20px;
-  max-width: 1000px;
-  margin: 0 auto;
+  padding: 80px 20px 40px;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  background: #ffffff;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .header {
   margin-bottom: 40px;
+  max-width: 1000px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .header h2 {
@@ -28,6 +38,10 @@
   gap: 10px;
   margin-bottom: 30px;
   border-bottom: 2px solid rgba(var(--brand-green-rgb), 0.2);
+  max-width: 1000px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .tab {
@@ -58,6 +72,10 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  max-width: 1000px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .rentalCard {

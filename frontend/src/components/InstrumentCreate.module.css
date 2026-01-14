@@ -1,7 +1,11 @@
 .container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
+  margin: 0;
+  padding: 80px 20px 40px;
+  min-height: calc(100vh - 80px);
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
 }
 
 .card {
@@ -12,6 +16,8 @@
   box-shadow: 0 8px 32px rgba(var(--brand-green-rgb), 0.1);
   position: relative;
   overflow: hidden;
+  max-width: 600px;
+  width: 100%;
 }
 
 .card::before {

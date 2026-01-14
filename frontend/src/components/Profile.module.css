@@ -1,11 +1,21 @@
 .profile {
-  padding: 40px 20px;
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 80px 20px 40px;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  background: #ffffff;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .header {
   margin-bottom: 40px;
+  max-width: 600px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .header h2 {
@@ -25,6 +35,10 @@
   box-shadow: 0 8px 32px rgba(var(--brand-green-rgb), 0.1);
   position: relative;
   overflow: hidden;
+  max-width: 600px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .card::before {
