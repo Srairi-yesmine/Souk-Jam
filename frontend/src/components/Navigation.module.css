@@ -59,8 +59,8 @@
 }
 
 .logoImg {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   filter: brightness(1) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
 }
