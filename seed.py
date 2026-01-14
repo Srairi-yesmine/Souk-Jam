@@ -8,6 +8,8 @@ from app.models import User, Instrument, JamRequest, Rental
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 import random
+import os
+import glob
 
 def create_diverse_tunisian_data():
     """Create diverse sample data for testing with Tunisian locations and varied pricing"""
@@ -154,6 +156,20 @@ def create_diverse_tunisian_data():
         # Get owners (users with role 'owner' or some jammers who also own instruments)
         owners = [u for u in users if u.role == 'owner'] + random.sample([u for u in users if u.role == 'jammer'], 3)
 
+        # Get available images from uploads folder
+        uploads_path = os.path.join(os.path.dirname(__file__), 'uploads')
+        available_images = []
+        if os.path.exists(uploads_path):
+            # Get all image files and create paths relative to uploads
+            for img_file in glob.glob(os.path.join(uploads_path, '*.*')):
+                if img_file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                    filename = os.path.basename(img_file)
+                    available_images.append(f"/uploads/{filename}")
+        
+        # Fallback if no images found - use a default
+        if not available_images:
+            available_images = ['/uploads/guitar1.jpeg']  # Fallback default
+
         for i in range(12):
             owner = random.choice(owners)
             inst_type = random.choice(list(instrument_types.keys()))
@@ -173,7 +189,7 @@ def create_diverse_tunisian_data():
                 'type': inst_type,
                 'description': f"High-quality {inst_type.replace('_', ' ')} in excellent condition, perfect for {random.choice(['professional performances', 'studio recording', 'practice sessions', 'live concerts', 'teaching', 'home use'])}",
                 'price_per_day': price,
-                'photo_url': f"https://example.com/{inst_type}_{i+1}.jpg",
+                'photo_url': random.choice(available_images),
                 'location_name': location['name'],
                 'location_lat': location['lat'],
                 'location_lng': location['lng'],
