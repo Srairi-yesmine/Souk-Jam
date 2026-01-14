@@ -193,11 +193,17 @@ class Login(Resource):
         Authenticate user and return JWT access token.
 
         Validates email/password combination and returns a JWT token
-        for authenticated API access.
+        for authenticated API access. Handles case-insensitive email matching.
         """
         data = request.get_json()
-        user = User.query.filter_by(email=data['email']).first()
-        if not user or not user.check_password(data['password']):
+        if not data or not data.get('email') or not data.get('password'):
+            auth_ns.abort(400, 'Email and password are required')
+        
+        # Use the User model's email normalization method
+        user = User.get_by_email(data['email'])
+        password = data['password'].strip() if isinstance(data['password'], str) else data['password']
+        
+        if not user or not user.check_password(password):
             auth_ns.abort(401, 'Invalid credentials')
         access_token = create_access_token(identity=str(user.id))
         return {'access_token': access_token, 'id': user.id}, 200
