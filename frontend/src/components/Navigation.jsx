@@ -24,6 +24,10 @@ export default function Navigation({ currentPage, onNavigate, user }) {
   return (
     <nav className={`${styles.nav} ${shouldBeOpaque ? styles.scrolledNav : ''}`}>
       <div className={styles.container}>
+        <div className={styles.logo}>
+          <img src="/logo.svg" alt="Souk'Jam" className={styles.logoImg} />
+        </div>
+        
         <div className={styles.menu}>
           <button
             className={`${styles.navItem} ${currentPage === 'browse' ? styles.active : ''}`}
