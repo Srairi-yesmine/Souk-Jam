@@ -3,6 +3,7 @@ import Auth from './components/Auth'
 import Navigation from './components/Navigation'
 import InstrumentBrowser from './components/InstrumentBrowser'
 import InstrumentCreate from './components/InstrumentCreate'
+import InstrumentManagement from './components/InstrumentManagement'
 import RentalModal from './components/RentalModal'
 import RentalManager from './components/RentalManager'
 import JamDiscovery from './components/JamDiscovery'
@@ -86,6 +87,9 @@ export default function App() {
         )}
         {currentPage === 'create' && (
           <InstrumentCreate />
+        )}
+        {currentPage === 'manage' && user && (
+          <InstrumentManagement user={user} token={localStorage.getItem('access_token')} onNavigate={setCurrentPage} />
         )}
         {currentPage === 'rentals' && (
           <RentalManager key={refreshCounter} user={user} />

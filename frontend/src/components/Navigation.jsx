@@ -25,7 +25,7 @@ export default function Navigation({ currentPage, onNavigate, user }) {
     <nav className={`${styles.nav} ${shouldBeOpaque ? styles.scrolledNav : ''}`}>
       <div className={styles.container}>
         <div className={styles.logo}>
-          <img src="/logo.svg" alt="Souk'Jam" className={styles.logoImg} />
+          <img src="/logo.png" alt="Souk'Jam" className={styles.logoImg} />
         </div>
         
         <div className={styles.menu}>
@@ -47,6 +47,16 @@ export default function Navigation({ currentPage, onNavigate, user }) {
             }}
           >
             Add
+          </button>
+
+          <button
+            className={`${styles.navItem} ${currentPage === 'manage' ? styles.active : ''}`}
+            onClick={() => {
+              onNavigate('manage')
+              setMobileMenuOpen(false)
+            }}
+          >
+            Manage
           </button>
 
           <button
