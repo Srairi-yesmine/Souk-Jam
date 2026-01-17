@@ -4,9 +4,7 @@ const API_BASE_URL = 'http://localhost:5000'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  timeout: 60000  // 60 second timeout for large file uploads
 })
 
 // Add token to requests
@@ -14,6 +12,14 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+  }
+  // IMPORTANT: Let axios/browser handle Content-Type for FormData automatically
+  // Only set Content-Type for non-FormData requests
+  if (!(config.data instanceof FormData)) {
+    config.headers['Content-Type'] = 'application/json'
+  } else {
+    // For FormData, explicitly DELETE Content-Type to let browser set it with boundary
+    delete config.headers['Content-Type']
   }
   return config
 })
@@ -37,12 +43,7 @@ export const authAPI = {
 export const instrumentsAPI = {
   getAll: (params) => api.get('/instruments', { params }),
   getOne: (id) => api.get(`/instruments/${id}`),
-  create: (data, config) => {
-    if (config?.headers?.['Content-Type'] === 'multipart/form-data') {
-      return api.post('/instruments', data, config)
-    }
-    return api.post('/instruments', data)
-  },
+  create: (data) => api.post('/instruments', data),
   update: (id, data) => api.put(`/instruments/${id}`, data),
   delete: (id) => api.delete(`/instruments/${id}`)
 }

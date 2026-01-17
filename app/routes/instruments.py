@@ -22,9 +22,11 @@ Security:
 
 from flask_restx import Namespace, Resource, fields, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import request
+from flask import request, jsonify, Blueprint
 from werkzeug.utils import secure_filename
 import os
+import json
+import traceback
 from ..models import Instrument, User
 from ..schemas import InstrumentSchema, SearchInstrumentSchema
 from ..extensions import db
@@ -209,16 +211,11 @@ class InstrumentList(Resource):
     @instruments_ns.expect(instrument_create_model)
     @instruments_ns.marshal_with(instrument_model, code=201, description='Instrument created successfully')
     @instruments_ns.response(401, 'Unauthorized')
-    @instruments_ns.response(403, 'Only owners can create instruments')
     @instruments_ns.response(400, 'Invalid location')
     def post(self):
         """Create a new instrument listing"""
         user_id = int(get_jwt_identity())
         user = User.query.get_or_404(user_id)
-        
-        # Only users with 'owner' role can create instruments
-        if user.role != 'owner':
-            instruments_ns.abort(403, 'Only owners can create instruments')
         
         data = request.form.to_dict()
         photo = request.files.get('photo')
@@ -305,17 +302,18 @@ class InstrumentList(Resource):
         results = search_instruments(data)
         return results
 
-@instruments_ns.route('/<int:id>')
-class InstrumentDetail(Resource):
-    @jwt_required()
-    @instruments_ns.marshal_with(instrument_model, description='Instrument details')
-    @instruments_ns.response(404, 'Instrument not found')
-    def get(self, id):
-        """Get instrument details by ID"""
+# Create blueprints for endpoints that need to handle FormData (to bypass RESTX validation)
+instruments_bp = Blueprint('instruments_bp', __name__, url_prefix='/instruments')
+
+# GET and DELETE via blueprint to avoid RESTX interference
+@instruments_bp.route('/<int:id>', methods=['GET'])
+@jwt_required(optional=True)
+def get_instrument(id):
+    """Get instrument details by ID"""
+    try:
         instrument = Instrument.query.get_or_404(id)
         owner = User.query.get(instrument.owner_id)
         
-        # Return instrument with owner_name
         result = {
             'id': instrument.id,
             'owner_id': instrument.owner_id,
@@ -325,60 +323,158 @@ class InstrumentDetail(Resource):
             'type': instrument.type,
             'description': instrument.description,
             'status': instrument.status,
-            'price_per_day': instrument.price_per_day,
-            'photo_url': instrument.photo_url,
-            'location_name': instrument.location_name,
-            'location_lat': instrument.location_lat,
-            'location_lng': instrument.location_lng
+            'price_per_day': float(instrument.price_per_day) if instrument.price_per_day else 0,
+            'photo_url': instrument.photo_url or '',
+            'location_name': instrument.location_name or '',
+            'location_lat': float(instrument.location_lat) if instrument.location_lat else None,
+            'location_lng': float(instrument.location_lng) if instrument.location_lng else None
         }
-        return result
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
 
-    @jwt_required()
-    @instruments_ns.expect(instrument_model)
-    @instruments_ns.marshal_with(instrument_model, description='Instrument updated')
-    @instruments_ns.response(403, 'Not authorized')
-    @instruments_ns.response(404, 'Instrument not found')
-    def put(self, id):
-        """Update instrument details (owner only)"""
+@instruments_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_instrument(id):
+    """Delete instrument (owner only) - only if no pending/confirmed rentals"""
+    try:
         user_id = int(get_jwt_identity())
         instrument = Instrument.query.get_or_404(id)
         if instrument.owner_id != user_id:
-            instruments_ns.abort(403, 'Not authorized')
-        data = request.get_json()
-        for key, value in data.items():
-            if hasattr(instrument, key):
-                setattr(instrument, key, value)
+            return jsonify({'message': 'Not authorized'}), 403
+        
+        # Check for active rentals
+        from ..models import Rental
+        active_rentals = Rental.query.filter(
+            Rental.instrument_id == id,
+            Rental.status.in_(['pending', 'confirmed'])
+        ).count()
+        
+        if active_rentals > 0:
+            return jsonify({'message': 'Cannot delete instrument with active or pending rentals'}), 400
+        
+        # Delete all rentals for this instrument at DB level to avoid any
+        # ORM-side nullification/UPDATE that can trigger NOT NULL errors.
+        # Use bulk delete with synchronize_session=False to run a direct SQL DELETE.
+        Rental.query.filter(Rental.instrument_id == id).delete(synchronize_session=False)
+
+        # Now delete the instrument
+        db.session.delete(instrument)
+        db.session.commit()
+        return '', 204
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        traceback.print_exc()
+        return jsonify({'message': str(e)}), 500
+
+@instruments_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required(optional=True)
+def update_instrument(id):
+    """Update instrument details (owner only) - handles FormData and JSON"""
+    try:
+        user_id = int(get_jwt_identity())
+        instrument = Instrument.query.get_or_404(id)
+        
+        if instrument.owner_id != user_id:
+            return jsonify({'message': 'Not authorized'}), 403
+        
+        # Handle both JSON and FormData requests
+        try:
+            if request.is_json:
+                data = request.get_json() or {}
+            else:
+                data = request.form.to_dict() or {}
+        except Exception as e:
+            return jsonify({'message': f'Failed to parse request data: {str(e)}'}), 400
+        
+        # Update simple fields - be defensive about empty values
+        updatable_fields = {
+            'name': str,
+            'brand': str,
+            'type': str,
+            'description': str,
+            'price_per_day': float,
+            'location_name': str,
+            'status': str
+        }
+        
+        for key, value_type in updatable_fields.items():
+            if key in data:
+                val = data.get(key)
+                # Skip if None, empty string, or False
+                if val is not None and str(val).strip() != '':
+                    try:
+                        if value_type == float:
+                            converted_val = float(val)
+                            setattr(instrument, key, converted_val)
+                        else:
+                            setattr(instrument, key, str(val).strip())
+                    except (ValueError, TypeError) as e:
+                        print(f"Error setting {key}: {e}")
+                        continue
+        
+        # Handle photo update if provided
+        try:
+            photo = request.files.get('photo')
+            if photo and photo.filename and photo.filename != '':
+                photo_url = save_photo(photo)
+                if photo_url:
+                    instrument.photo_url = photo_url
+        except Exception as e:
+            print(f"Photo upload error: {e}")
+            # Don't fail the whole request if photo upload fails
+        
+        # Handle tags if provided
+        try:
+            if 'tags' in data and data['tags']:
+                if isinstance(data['tags'], str):
+                    instrument.tags = json.loads(data['tags'])
+                else:
+                    instrument.tags = data['tags']
+        except (json.JSONDecodeError, TypeError) as e:
+            print(f"Tags parsing error: {e}")
+            pass  # Keep existing tags if parsing fails
+        
+        # Commit changes
         db.session.commit()
         
         # Get owner name for response
         owner = User.query.get(instrument.owner_id)
+        
+        # Prepare response data - ensure all fields are serializable
+        try:
+            price = float(instrument.price_per_day) if instrument.price_per_day else 0.0
+        except (ValueError, TypeError):
+            price = 0.0
+        
+        try:
+            lat = float(instrument.location_lat) if instrument.location_lat else 0.0
+        except (ValueError, TypeError):
+            lat = 0.0
+        
+        try:
+            lng = float(instrument.location_lng) if instrument.location_lng else 0.0
+        except (ValueError, TypeError):
+            lng = 0.0
+        
         result = {
             'id': instrument.id,
             'owner_id': instrument.owner_id,
             'owner_name': owner.name if owner else 'Unknown',
-            'name': instrument.name,
-            'brand': instrument.brand,
-            'type': instrument.type,
-            'description': instrument.description,
-            'status': instrument.status,
-            'price_per_day': instrument.price_per_day,
-            'photo_url': instrument.photo_url,
-            'location_name': instrument.location_name,
-            'location_lat': instrument.location_lat,
-            'location_lng': instrument.location_lng
+            'name': instrument.name or '',
+            'brand': instrument.brand or '',
+            'type': instrument.type or '',
+            'description': instrument.description or '',
+            'status': instrument.status or 'available',
+            'price_per_day': price,
+            'photo_url': instrument.photo_url or '',
+            'location_name': instrument.location_name or '',
+            'location_lat': lat,
+            'location_lng': lng
         }
-        return result
-
-    @jwt_required()
-    @instruments_ns.response(204, 'Instrument deleted')
-    @instruments_ns.response(403, 'Not authorized')
-    @instruments_ns.response(404, 'Instrument not found')
-    def delete(self, id):
-        """Delete instrument (owner only)"""
-        user_id = int(get_jwt_identity())
-        instrument = Instrument.query.get_or_404(id)
-        if instrument.owner_id != user_id:
-            instruments_ns.abort(403, 'Not authorized')
-        db.session.delete(instrument)
-        db.session.commit()
-        return '', 204
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Update instrument error: {e}")
+        traceback.print_exc()
+        return jsonify({'message': f'Server error: {str(e)}'}), 500

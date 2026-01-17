@@ -44,32 +44,22 @@ export default function InstrumentCreate() {
     try {
       const tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
       
-      const submitData = {
-        name: formData.name,
-        brand: formData.brand,
-        type: formData.type,
-        description: formData.description,
-        price_per_day: parseFloat(formData.price_per_day),
-        location_name: formData.location_name,
-        tags: tags
-      }
-
+      // Always use FormData for consistency and file upload support
+      const submitData = new FormData()
+      submitData.append('name', formData.name)
+      submitData.append('brand', formData.brand)
+      submitData.append('type', formData.type)
+      submitData.append('description', formData.description)
+      submitData.append('price_per_day', formData.price_per_day)
+      submitData.append('location_name', formData.location_name)
+      submitData.append('tags', JSON.stringify(tags))
+      
       if (photo) {
-        const photoFormData = new FormData()
-        Object.keys(submitData).forEach(key => {
-          if (key === 'tags') {
-            photoFormData.append(key, JSON.stringify(submitData[key]))
-          } else {
-            photoFormData.append(key, submitData[key])
-          }
-        })
-        photoFormData.append('photo', photo)
-        await instrumentsAPI.create(photoFormData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
-      } else {
-        await instrumentsAPI.create(submitData)
+        submitData.append('photo', photo)
       }
+      
+      // Don't pass Content-Type header - let axios interceptor and browser handle it
+      await instrumentsAPI.create(submitData)
 
       setSuccess('Instrument created successfully!')
       setFormData({

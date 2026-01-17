@@ -18,4 +18,5 @@ class Instrument(db.Model):
     tags = db.Column(db.JSON)  # List of strings
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    rentals = db.relationship('Rental', backref='instrument', lazy=True)
+    # Cascade delete: when instrument is deleted, all rentals are also deleted
+    rentals = db.relationship('Rental', backref='instrument', lazy=True, cascade='all, delete', foreign_keys='Rental.instrument_id')

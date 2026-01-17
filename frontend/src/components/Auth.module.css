@@ -40,10 +40,12 @@
   border-radius: 20px;
   padding: 50px;
   width: 100%;
-  max-width: 420px;
+  max-width: 600px;
   box-shadow: 0 8px 32px rgba(var(--brand-green-rgb), 0.2);
   position: relative;
   z-index: 1;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .logoSection {
@@ -168,3 +170,219 @@
 .toggleBtn:hover {
   color: var(--brand-green);
 }
+
+/* New Styles for Extended Registration Form */
+
+.sectionDivider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
+  margin: 30px 0;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--brand-green);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Genres Grid */
+.genresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.genreTag {
+  padding: 10px 15px;
+  background: #f5f5f4;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+  text-transform: capitalize;
+}
+
+.genreTag:hover {
+  border-color: var(--brand-green);
+  background: rgba(var(--brand-green-rgb), 0.1);
+}
+
+.genreTag.active {
+  background: var(--brand-green);
+  color: white;
+  border-color: var(--brand-green);
+  box-shadow: 0 4px 12px rgba(var(--brand-green-rgb), 0.3);
+}
+
+/* Instruments List */
+.instrumentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.instrumentRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 40px;
+  gap: 10px;
+  align-items: center;
+}
+
+.instrumentSelect,
+.skillSelect {
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.instrumentSelect:focus,
+.skillSelect:focus {
+  outline: none;
+  border-color: var(--brand-green);
+  box-shadow: 0 0 0 3px rgba(var(--brand-green-rgb), 0.15);
+  background: #f9f9f8;
+}
+
+.removeBtn {
+  padding: 8px;
+  background: #ffe6e6;
+  border: 2px solid #ff9999;
+  border-radius: 6px;
+  color: #d32f2f;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.removeBtn:hover {
+  background: #ffcccc;
+  border-color: #ff6666;
+  transform: scale(1.1);
+}
+
+.addInstrumentBtn {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, rgba(var(--brand-green-rgb), 0.15) 0%, rgba(var(--brand-green-rgb), 0.08) 100%);
+  border: 2px dashed var(--brand-green);
+  border-radius: 8px;
+  color: var(--brand-green);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 13px;
+}
+
+.addInstrumentBtn:hover {
+  background: linear-gradient(135deg, rgba(var(--brand-green-rgb), 0.25) 0%, rgba(var(--brand-green-rgb), 0.15) 100%);
+  border-style: solid;
+  transform: translateY(-2px);
+}
+
+/* Jam Toggle Switch */
+.jamToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(var(--brand-green-rgb), 0.08) 0%, rgba(var(--brand-green-rgb), 0.04) 100%);
+  border-radius: 12px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(var(--brand-green-rgb), 0.2);
+}
+
+.jamToggle label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.toggleSwitch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+}
+
+.toggleSwitch.active {
+  background: var(--brand-green);
+  color: white;
+  box-shadow: 0 4px 12px rgba(var(--brand-green-rgb), 0.3);
+}
+
+.toggleSlider {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.toggleSwitch.active .toggleSlider {
+  background: white;
+}
+
+/* Logo Section */
+.logoSection {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.logoImg {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(var(--brand-green-rgb), 0.15));
+}
+
+.logoSection h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #333;
+  margin: 12px 0 8px;
+  background: linear-gradient(135deg, var(--brand-green) 0%, #1abc9c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logoSection p {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+

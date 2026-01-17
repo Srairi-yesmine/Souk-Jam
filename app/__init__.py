@@ -62,12 +62,15 @@ def create_app(config_class=Config):
     migrate.init_app(app, db) # Database migration management
     jwt.init_app(app)         # JWT token authentication
 
+    # Register blueprint FIRST (before REST API) for proper routing priority
+    from .routes.instruments import instruments_ns, instruments_bp
+    app.register_blueprint(instruments_bp)
+
     # Initialize REST API framework (after CORS)
     api.init_app(app)
 
     # Register API namespaces (endpoints)
     from .auth.routes import auth_ns
-    from .routes.instruments import instruments_ns
     from .routes.jam import jam_ns
     from .routes.rental import rental_ns
     api.add_namespace(auth_ns, path='/auth')           # Authentication endpoints

@@ -109,10 +109,11 @@ export default function InstrumentManagement({ user, token, onNavigate }) {
         fetchInstruments()
         setTimeout(() => setSuccess(''), 3000)
       } else {
-        setError('Failed to delete instrument')
+        const errorData = await response.json().catch(() => ({}))
+        setError(errorData.message || `Failed to delete instrument (${response.status})`)
       }
     } catch (err) {
-      setError('Error deleting instrument')
+      setError(err.message || 'Error deleting instrument')
     }
   }
 

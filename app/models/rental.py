@@ -15,3 +15,6 @@ class Rental(db.Model):
     comment = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Note: 'instrument' relationship is created automatically by the backref in Instrument model
+    # Note: 'renter' relationship is created automatically by the backref in User model

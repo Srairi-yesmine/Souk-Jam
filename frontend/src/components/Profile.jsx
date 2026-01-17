@@ -13,8 +13,6 @@ export default function Profile({ user, onLogout }) {
     if (file) {
       setLoading(true)
       try {
-        const formData = new FormData()
-        formData.append('profile_photo', file)
         await authAPI.uploadProfilePhoto(user.id, file)
         setPhotoFile(null)
         window.location.reload()

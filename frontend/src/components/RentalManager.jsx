@@ -9,9 +9,6 @@ export default function RentalManager({ user }) {
   const [selectedRental, setSelectedRental] = useState(null)
   const [counterOffer, setCounterOffer] = useState('')
 
-  // Determine if viewing as owner or renter
-  const isOwner = user?.role === 'owner'
-
   useEffect(() => {
     fetchRentals()
   }, [tab])
@@ -22,19 +19,16 @@ export default function RentalManager({ user }) {
       const response = await rentalsAPI.getAll({
         limit: 50
       })
-      let filtered = response.data
-
-      if (isOwner) {
-        // Show incoming rental requests (where user is the owner)
-        filtered = filtered.filter(r => r.owner_id === user?.id)
-      } else {
-        // Show sent rental requests (where user is the renter)
-        filtered = filtered.filter(r => r.renter_id === user?.id)
-      }
+      // Show all rentals where user is either owner or renter
+      let filtered = response.data.filter(
+        r => r.owner_id === user?.id || r.renter_id === user?.id
+      )
 
       if (tab === 'pending') {
-        filtered = filtered.filter(r => r.owner_response === 'pending')
+        // Show pending and counter_offer status (active negotiations)
+        filtered = filtered.filter(r => r.owner_response === 'pending' || r.owner_response === 'counter_offer')
       } else if (tab === 'confirmed') {
+        // Show confirmed rentals
         filtered = filtered.filter(r => r.status === 'confirmed')
       }
 
@@ -55,7 +49,8 @@ export default function RentalManager({ user }) {
       setSelectedRental(null)
       fetchRentals()
     } catch (error) {
-      console.error('Error sending counter-offer:', error)
+      console.error('Error sending counter-offer:', error?.response?.data || error?.message || error)
+      alert(`Failed to send counter-offer: ${error?.response?.data?.message || error?.message}`)
     }
   }
 
@@ -80,12 +75,8 @@ export default function RentalManager({ user }) {
   return (
     <div className={styles.manager}>
       <div className={styles.header}>
-        <h2>{isOwner ? 'Rental Requests' : 'My Rentals'}</h2>
-        <p>
-          {isOwner
-            ? 'Manage incoming rental requests for your instruments'
-            : 'View your rental requests and negotiations'}
-        </p>
+        <h2>Rentals & Negotiations</h2>
+        <p>Manage your rental requests and price negotiations</p>
       </div>
 
       <div className={styles.tabs}>
@@ -141,15 +132,22 @@ export default function RentalManager({ user }) {
                   </div>
                   {rental.negotiated_price && (
                     <div className={styles.priceRow}>
-                      <span>Negotiated Price:</span>
+                      <span>
+                        {rental.owner_response === 'counter_offer' ? '💰 Negotiated Price:' : 'Negotiated Price:'}
+                      </span>
                       <span className={styles.negotiated}>
                         {rental.negotiated_price.toFixed(2)} TND
+                        {rental.owner_response === 'counter_offer' && rental.owner_id === user?.id && (
+                          <span style={{ marginLeft: '8px', fontSize: '0.9em', color: '#ff9800' }}>
+                            (waiting for your response)
+                          </span>
+                        )}
                       </span>
                     </div>
                   )}
                 </div>
 
-                {isOwner ? (
+                {rental.owner_id === user?.id ? (
                   // Owner view: show action buttons for incoming requests
                   <>
                     {rental.owner_response === 'pending' && (
@@ -165,6 +163,29 @@ export default function RentalManager({ user }) {
                           onClick={() => setSelectedRental(rental.id)}
                         >
                           Counter Offer
+                        </button>
+                        <button
+                          className={styles.rejectBtn}
+                          onClick={() => handleReject(rental.id)}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+
+                    {rental.owner_response === 'counter_offer' && (
+                      <div className={styles.actions}>
+                        <button
+                          className={styles.acceptBtn}
+                          onClick={() => handleAccept(rental.id)}
+                        >
+                          Accept Offer
+                        </button>
+                        <button
+                          className={styles.counterBtn}
+                          onClick={() => setSelectedRental(rental.id)}
+                        >
+                          Make Counter Offer
                         </button>
                         <button
                           className={styles.rejectBtn}
@@ -204,27 +225,91 @@ export default function RentalManager({ user }) {
                     )}
                   </>
                 ) : (
-                  // Renter view: show status only, no action buttons
-                  <div className={styles.renterStatus}>
-                    <p>
-                      <strong>Status:</strong>{' '}
-                      <span className={`${styles.statusBadge} ${styles[rental.owner_response]}`}>
-                        {rental.owner_response === 'pending'
-                          ? 'Waiting for response'
-                          : rental.owner_response === 'accepted'
-                          ? 'Accepted'
-                          : 'Rejected'}
-                      </span>
-                    </p>
+                  // Renter view: show status and counter-offer option
+                  <div className={styles.renterSection}>
+                    <div className={styles.renterStatus}>
+                      <p>
+                        <strong>Status:</strong>{' '}
+                        <span className={`${styles.statusBadge} ${styles[rental.owner_response]}`}>
+                          {rental.owner_response === 'pending'
+                            ? 'Waiting for response'
+                            : rental.owner_response === 'accepted'
+                            ? 'Accepted'
+                            : rental.owner_response === 'counter_offer'
+                            ? 'Counter Offer'
+                            : 'Rejected'}
+                        </span>
+                      </p>
+                    </div>
+
+                    {rental.owner_response === 'pending' && (
+                      <div className={styles.actions}>
+                        <button
+                          className={styles.counterBtn}
+                          onClick={() => setSelectedRental(rental.id)}
+                        >
+                          Counter Offer
+                        </button>
+                      </div>
+                    )}
+
+                    {rental.owner_response === 'counter_offer' && (
+                      <div className={styles.actions}>
+                        <button
+                          className={styles.acceptBtn}
+                          onClick={() => handleAccept(rental.id)}
+                        >
+                          Accept Counter
+                        </button>
+                        <button
+                          className={styles.counterBtn}
+                          onClick={() => setSelectedRental(rental.id)}
+                        >
+                          Make Counter Offer
+                        </button>
+                        <button
+                          className={styles.rejectBtn}
+                          onClick={() => handleReject(rental.id)}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+
+                    {selectedRental === rental.id && (
+                      <div className={styles.counterOfferForm}>
+                        <input
+                          type="number"
+                          placeholder="New price (TND)"
+                          value={counterOffer}
+                          onChange={(e) => setCounterOffer(e.target.value)}
+                          min="0"
+                          step="0.01"
+                        />
+                        <button
+                          onClick={() => handleCounterOffer(rental.id)}
+                          className={styles.sendBtn}
+                        >
+                          Send Offer
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedRental(null)
+                            setCounterOffer('')
+                          }}
+                          className={styles.cancelBtn}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             ))
           ) : (
             <div className={styles.empty}>
-              {isOwner
-                ? 'No rental requests yet. List more instruments to receive requests!'
-                : 'No rental requests yet. Start by renting an instrument!'}
+              No rental requests yet.
             </div>
           )}
         </div>

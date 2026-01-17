@@ -162,16 +162,19 @@ class RentalCounterOffer(Resource):
     @jwt_required()
     @rental_ns.expect(rental_counter_offer_model)
     @rental_ns.marshal_with(rental_model, description='Counter-offer sent')
-    @rental_ns.response(403, 'Only renter can send counter-offers')
+    @rental_ns.response(403, 'Only renter or owner can send counter-offers')
     @rental_ns.response(404, 'Rental not found')
     def patch(self, rental_id):
-        """Renter sends counter-offer price (owner can accept, reject, or negotiate)"""
+        """Renter or owner sends counter-offer price for negotiation"""
         user_id = int(get_jwt_identity())
-        rental = Rental.query.get_or_404(rental_id)
+        rental = Rental.query.options(db.joinedload(Rental.instrument)).get_or_404(rental_id)
         
-        # Only renter can make counter-offer
-        if rental.renter_id != user_id:
-            rental_ns.abort(403, 'Only renter can send counter-offers')
+        # Only renter or owner can make counter-offer
+        is_renter = rental.renter_id == user_id
+        is_owner = rental.instrument and rental.instrument.owner_id == user_id
+        
+        if not (is_renter or is_owner):
+            rental_ns.abort(403, 'Only renter or owner can send counter-offers')
         
         data = request.get_json()
         rental.negotiated_price = data['negotiated_price']

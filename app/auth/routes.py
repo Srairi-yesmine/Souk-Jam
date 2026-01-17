@@ -175,7 +175,7 @@ class UserList(Resource):
 
 @auth_ns.route('/users/<int:user_id>')
 class UserDetail(Resource):
-    @jwt_required()
+    @jwt_required(optional=True)
     @auth_ns.marshal_with(user_model, description='User details')
     @auth_ns.response(404, 'User not found')
     def get(self, user_id):

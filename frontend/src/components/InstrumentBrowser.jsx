@@ -6,34 +6,42 @@ import styles from './InstrumentBrowser.module.css'
 const SORT_OPTIONS = [
   { value: 'price_asc', label: 'Price (Low to High)', sortBy: 'price_per_day', order: 'asc' },
   { value: 'price_desc', label: 'Price (High to Low)', sortBy: 'price_per_day', order: 'desc' },
-  { value: 'newest', label: 'Newest First', sortBy: 'newest' },
-  { value: 'distance', label: 'Closest to Me', sortBy: 'distance' },
-  { value: 'owner_id', label: 'By Owner', sortBy: 'owner_id' }
+  { value: 'newest', label: 'Newest First', sortBy: 'newest', order: 'desc' },
+  { value: 'distance', label: 'Closest to Me', sortBy: 'distance', order: 'asc' },
+  { value: 'owner_id', label: 'By Owner', sortBy: 'owner_id', order: 'asc' }
 ]
 
-export default function InstrumentBrowser({ onRentClick }) {
+export default function InstrumentBrowser({ user, onRentClick }) {
   const [instruments, setInstruments] = useState([])
   const [loading, setLoading] = useState(false)
-  const [sortBy, setSortBy] = useState('distance')
-  const [sortOrder, setSortOrder] = useState('asc')
+  const [sortValue, setSortValue] = useState('distance')
   const [priceRange, setPriceRange] = useState([0, 100])
   const [selectedType, setSelectedType] = useState('')
 
   useEffect(() => {
     fetchInstruments()
-  }, [sortBy, sortOrder, priceRange, selectedType])
+  }, [sortValue, priceRange, selectedType])
 
   const fetchInstruments = async () => {
     setLoading(true)
     try {
-      const response = await instrumentsAPI.getAll({
-        sort_by: sortBy,
-        sort_order: sortOrder,
+      const selected = SORT_OPTIONS.find(opt => opt.value === sortValue)
+      const params = {
+        sort_by: selected.sortBy,
+        sort_order: selected.order,
         price_min: priceRange[0],
         price_max: priceRange[1],
         type: selectedType || undefined,
         limit: 20
-      })
+      }
+      
+      // Add user location for distance sorting
+      if (user?.location_lat && user?.location_lng) {
+        params.user_lat = user.location_lat
+        params.user_lng = user.location_lng
+      }
+      
+      const response = await instrumentsAPI.getAll(params)
       setInstruments(response.data)
     } catch (error) {
       console.error('Error fetching instruments:', error)
@@ -43,9 +51,7 @@ export default function InstrumentBrowser({ onRentClick }) {
   }
 
   const handleSortChange = (e) => {
-    const selected = SORT_OPTIONS.find(opt => opt.value === e.target.value)
-    setSortBy(selected.sortBy)
-    if (selected.order) setSortOrder(selected.order)
+    setSortValue(e.target.value)
   }
 
   return (
@@ -58,7 +64,7 @@ export default function InstrumentBrowser({ onRentClick }) {
       <div className={styles.filters}>
         <div className={styles.filterGroup}>
           <label>Sort By</label>
-          <select value={sortBy} onChange={handleSortChange}>
+          <select value={sortValue} onChange={handleSortChange}>
             {SORT_OPTIONS.map(opt => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}

@@ -32,7 +32,7 @@ class Config:
 
     # File upload configuration
     UPLOAD_FOLDER = 'uploads'                    # Directory for uploaded files
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024       # Maximum file size (16MB)
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024       # Maximum file size (50MB for high-quality images)
 
     # Flask environment setting
     FLASK_ENV = os.getenv('FLASK_ENV', 'development')

@@ -43,7 +43,7 @@ def save_photo(file):
         file: Flask file object from request.files
 
     Returns:
-        str: Relative URL path to the saved file, or None if save fails
+        str: Filename (not full path) for database storage, or None if save fails
     """
     if file and allowed_file(file.filename):
         # Sanitize original filename to prevent path traversal attacks
@@ -58,7 +58,8 @@ def save_photo(file):
         # Save the file
         file.save(filepath)
 
-        # Return relative URL path for API responses
-        return f"/uploads/{unique_filename}"
+        # Return just the filename for storage in database
+        # The /uploads/ prefix is added by the frontend when displaying
+        return unique_filename
 
     return None

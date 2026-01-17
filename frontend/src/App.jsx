@@ -83,7 +83,7 @@ export default function App() {
 
       <main className={styles.main}>
         {currentPage === 'browse' && (
-          <InstrumentBrowser onRentClick={handleRentClick} />
+          <InstrumentBrowser user={user} onRentClick={handleRentClick} />
         )}
         {currentPage === 'create' && (
           <InstrumentCreate />
