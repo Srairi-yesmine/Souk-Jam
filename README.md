@@ -33,23 +33,7 @@ A preliminary survey conducted via Google Forms (approximately 20 respondents in
 
 ---
 
-## Project Structure
 
-├── app/ # Backend (Flask)
-│ ├── models/ # SQLAlchemy models
-│ ├── routes/ # API endpoints
-│ ├── services/ # Business logic (matching, distance, etc.)
-│ ├── extensions.py
-│ └── config.py
-├── frontend/ # React + Vite frontend
-│ ├── src/
-│ │ ├── components/
-│ │ └── api.js
-│ └── package.json
-├── migrations/ # Alembic migrations
-├── tests/ # Unit and integration tests
-├── uploads/ # Uploaded images
-└── README.md
 
 ## Authentication and Authorization
 
